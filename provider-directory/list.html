@@ -1,0 +1,142 @@
+<!--title:Provider Directory-->
+<link type="text/css" rel="stylesheet" charset="UTF-8" href="/provider-directory/css/marketplace.css">
+<section class="systems hero hero-cityscape">
+  <div class="inner">
+    <h1>System Providers</h1>
+    <h2>Search our provider partners and find the system that best fits your needs.</h2>
+  </div>
+</section>
+
+<div id="system-info" data-reveal data-multiple-opened="true" data-overlay="false"  class="reveal">
+  <h5>{{heading}}</h5>
+  <div>{{blurb}}</div>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="systems off-canvas-wrapper">
+  <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper >
+    <div class="off-canvas position-left" id="off-canvas" data-off-canvas
+         data-force-top="false" data-auto-focus="false" data-close-on-click="true">
+      <!-- Close button -->
+      <button class="close-button" aria-label="Close menu" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <div class="filter"></div>
+    </div>
+
+    <div class="off-canvas-content row column" id="systems-list" data-off-canvas-content>
+      <div class="hide-for-small-only medium-3 column">
+        <div class="filter">
+          <h5>Filter by:</h5>
+          <dl>
+            <dt>Country</dt>
+            <dd>
+              <label><input type="text" placeholder="Enter your country" v-model="country"/></label>
+              <p class="help-text">Display providers offering service in a specific location</p>
+            </dd>
+
+            <dt>System Type</dt>
+            <dd v-on:click="filterClick()" >
+              <div><label class="CM"><input type="checkbox" v-model="typeCM"><span class="label">CM</span> Channel Manager</label></div>
+              <div><label class="PMS"><input type="checkbox" v-model="typePMS"><span class="label">PMS</span> Property Management System</label></div>
+              <div><label class="CRS"><input type="checkbox" v-model="typeCRS"><span class="label">CRS</span> Central Reservations Systems</label></div>
+            </dd>
+
+          </dl>
+
+          <div class="fill"></div>
+          <div class="survey">
+            <p>Did this page help you find a system?</p>
+            <div class="text-right"><a v-on:click="surveyClick(true)" class="button">Yes</a> <a v-on:click="surveyClick(false)" class="button" >No</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="small-12 medium-9 column list">
+        <p>You have many options for connecting your property to the Expedia Global Marketplace.</p>
+        <div class="sort-bar">
+          <div class="show-for-small-only clearfix">
+            <div class="float-right">
+              <select v-model="sortedBy">
+                <option value="" disabled>Sort by:</option>
+                <option value="system">System Name</option>
+                <option value="company">Provider Name</option>
+              </select>
+            </div>
+            <a data-toggle="off-canvas">Filters</a>
+          </div>
+          <div class="button-group hide-for-small-only">
+            <span class="title">Sort by:</span>
+            <a class="button" v-on:click="sortedBy = 'system'" v-bind:class="{active: sortedBy == 'system'}">System Name</a>
+            <a class="button" v-on:click="sortedBy = 'company'" v-bind:class="{active: sortedBy == 'company'}">Provider Name</a>
+          </div>
+        </div>
+
+        <div class="provider-list">
+          <ul class="vertical menu" data-accordion-menu>
+            <li v-for="p in filteredProviders">
+              <a v-bind:class="[p.type]" v-on:click="show(p)">
+                <span class="system-type"><span class="label">{{p.type}}</span> &gt;</span>
+                <div class="system-name">{{p.system}}</div>
+                <div class="company-name">by {{p.company}}</div>
+              </a>
+            </li>
+          </ul>
+          <div class="disclaimer">This information was last updated on November 10th, 2017.  Please <a href="/contact-us">contact us</a> if you are a provider and your system details need to be updated.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="systems small reveal" id="system-details" data-reveal >
+  <header class="clearfix" v-bind:class="[type]">
+    <div>
+      <div>
+        <div><h3>{{system}}</h3></div>
+        <div class="type"><span class="label">{{type}}</span></div>
+      </div>
+      <p class="help-text">by {{company}}</p>
+    </div>
+    <div class="link-button" v-on:click="openWebsite()">Visit system website <img src="https://a.travel-assets.com/epc/epc-menu-header-poc/prod/images/icon-popup.svg" /></div>
+  </header>
+  <div class="row average-time" data-equalizer>
+    <div class="card small-6 column" data-equalizer-watch>
+      <div class=""><span class="time">{{arRate}}</span>%</div>
+      <p v-on:click="showARIInfo()">Availability and Rate update success <span class="icon icon-info" aria-hidden="true" ></span></p>
+    </div>
+    <div class="card small-6 column" data-equalizer-watch data-toggle="myModal">
+      <div class=""><span class="time">{{bcRate}}</span>%</div>
+      <p v-on:click="showBCRInfo()">Booking confirmation success <span class="icon icon-info" aria-hidden="true" ></span></p>
+    </div>
+  </div>
+  <div class="card row column">
+    <div class="card-header clearfix">
+            <div>Key feature support</div>
+    </div>
+    <div class="row small-up-1 medium-up-2">
+      <div class="column items" v-for="(f, i) in availableFeatures" v-bind:class="[featureSupported(f) ? 'ok' : 'nok']" v-on:click="showInfo(i)">
+        <i v-bind:class="[featureSupported(f) ? 'fi-check' : 'fi-x']" ></i> {{f}} <span class="icon icon-info" aria-hidden="true" ></span>
+      </div>
+    </div>
+  </div>
+  <div class="card row column">
+    <div class="card-header clearfix">
+      <div>Restriction support</div>
+    </div>
+    <div class="row small-up-1 medium-up-2">
+      <div class="column items" v-for="r in availableRestrictions" v-bind:class="[restrictionSupported(r) ? 'ok' : 'nok']">
+        <i v-bind:class="[restrictionSupported(r) ? 'fi-check' : 'fi-x']"></i> {{r}}
+      </div>
+    </div>
+  </div>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<script src="/js/vue.min.js"></script>
+<script data-main="/provider-directory/js/app.js" src="/js/require.js"></script>
+
